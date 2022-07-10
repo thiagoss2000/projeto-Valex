@@ -1,8 +1,8 @@
 import express, { json } from "express";
 import "express-async-errors";
 import dotenv from "dotenv";
-import router from "./src/routes/router.js";
-import errorHandler from "./src/middlewares/errorHandlerMiddleware.js"
+import router from "./routes/router.js";
+import errorHandler from "./middlewares/errorHandlerMiddleware.js"
 import chalk from "chalk";
 dotenv.config();
 
