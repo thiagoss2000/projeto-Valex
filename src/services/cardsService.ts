@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import Cryptr from "cryptr";
 import { findById } from "../repositories/employeeRepository.js";
 import { findByApiKey } from "../repositories/companyRepository.js";
-import { findByTypeAndEmployeeId, insert, TransactionTypes } from "../repositories/cardRepository.js";
+import { findByCardDetails, findByTypeAndEmployeeId, insert, TransactionTypes, update } from "../repositories/cardRepository.js";
 import { cardUserName, dateExpiration } from '../utils/cardsUtil.js';
 
 const typeCard = ['groceries', 'restaurant', 'transport', 'education', 'health'];
@@ -21,11 +21,12 @@ export async function creatCardService(cardType: TransactionTypes, userId: numbe
     
     if (cardsData) throw {status: 409, message: "card existed"};
 
-    const cryptr = new Cryptr(apikey.toString());
+    const numberCard = faker.random.numeric(16);
+    const cryptr = new Cryptr(numberCard);
 
     const card = {
         employeeId: userdata.id,
-        number: faker.random.numeric(16),
+        number: numberCard,
         cardholderName: cardUserName(userdata.fullName),
         securityCode: cryptr.encrypt(faker.random.numeric(3)),
         expirationDate: dateExpiration(5),
@@ -37,4 +38,11 @@ export async function creatCardService(cardType: TransactionTypes, userId: numbe
     };
 
     await insert(card);
+}
+
+export async function activeCardService(cardNumber: string, cvc: string, password: string, cardDetails: any) {
+    const cryptr = new Cryptr(cardNumber);
+    console.log(cryptr.decrypt(cardDetails.securityCode))
+    const newData = { password: cryptr.encrypt(password) }    
+    await update(cardDetails.id, newData);
 }
