@@ -12,5 +12,7 @@ export async function creatCard(req: Request, res: Response) {
 }
 
 export async function activeCard(req: Request, res: Response) {
+    
     res.send("teste")
+
 }
