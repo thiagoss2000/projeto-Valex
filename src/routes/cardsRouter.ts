@@ -9,7 +9,7 @@ cardsRouter.post("/active-card",cardDetails, activeCard);
 cardsRouter.post("/recharge", rechargeCard);
 cardsRouter.post("/payment", cardDetails, payment);
 
-cardsRouter.get("/moviment", cardDetails, viewMoviment);  //FIXME change middleware req.body
-cardsRouter.get("/view", viewCard); //FIXME change req.body
+cardsRouter.get("/moviment/:id", viewMoviment); 
+cardsRouter.get("/view/:id", viewCard); 
 
 export default cardsRouter;

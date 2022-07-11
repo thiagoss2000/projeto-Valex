@@ -25,15 +25,16 @@ export async function activeCard(req: Request, res: Response) {
 }
 
 export async function viewCard(req: Request, res: Response) {
-    const { employeeId, password } : { employeeId: number, password: string} = req.body;
+    const employeeId = req.params.id
+    const { password } = req.headers;
 
-    const cards = viewCardService(employeeId, password);
+    const cards = viewCardService(parseInt(employeeId), password.toString());
 }
 
 export async function viewMoviment(req: Request, res: Response) {
-    const cardDetails = res.locals.cardDetails;
+    const cardId = req.params.id;
 
-    const transactionsData = await viewTransactionsServices(cardDetails.id);
+    const transactionsData = await viewTransactionsServices(parseInt(cardId));
 
     res.send(transactionsData);
 }
