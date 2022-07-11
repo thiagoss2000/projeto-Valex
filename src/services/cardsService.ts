@@ -43,12 +43,14 @@ export async function creatCardService(cardType: cardRepository.TransactionTypes
     await cardRepository.insert(card);
 }
 
+
 export async function activeCardService(cardNumber: string, cvc: string, password: string, cardDetails: any) {
     const cryptr = new Cryptr(cardNumber);
     console.log(cryptr.decrypt(cardDetails.securityCode))
     const newData = { password: cryptr.encrypt(password) }    
     await cardRepository.update(cardDetails.id, newData);
 }
+
 
 export async function rechargecardService(apikey: string, cardId: number, credit: number) {
 
@@ -66,18 +68,13 @@ export async function rechargecardService(apikey: string, cardId: number, credit
     await rechargeCard(rechargeData);
 }
 
+
 export async function paymentService(cardId: number, typeCard: string, businessId: number, paymentAmount: number) {
     
-    const paymentDetails = await findByCardId(cardId);
-    const rechargeDetails = await findRecharge(cardId);
     const businessesData = await findById(businessId);
 
-    let amount = 0;
-    rechargeDetails.forEach(e => amount += e.amount);
-    paymentDetails.forEach(e => amount -= e.amount);
-
     if (businessesData.type != typeCard) throw {status: 401, message: "inappropriate card"};
-    if (paymentAmount <= 0 || paymentAmount > amount) throw {status: 402, message: "insufficient funds"};
+    if (paymentAmount <= 0 || paymentAmount > await transactionsDetails(cardId)) throw {status: 402, message: "insufficient funds"};
 
     const paymentData = { 
         cardId, 
@@ -85,4 +82,59 @@ export async function paymentService(cardId: number, typeCard: string, businessI
         amount: paymentAmount
     }
     await insert(paymentData)
+}
+
+
+export async function viewTransactionsServices(cardId: number) {
+
+    return {
+        balance: await transactionsDetails(cardId),
+        transactions: await findPaymentsDetails(cardId),
+        recharges: await findRechargesDetails(cardId)
+    }
+}
+
+
+async function transactionsDetails(cardId: number) {
+
+    const paymentDetails = await findByCardId(cardId);
+    const rechargeDetails = await findRecharge(cardId);
+
+    let amount = 0;
+    rechargeDetails.forEach(e => amount += e.amount);
+    paymentDetails.forEach(e => amount -= e.amount);
+
+    return amount;
+}
+
+async function findRechargesDetails(cardId: number) {
+    const rechargeDetails = await findRecharge(cardId);
+
+    return rechargeDetails.map(e => {
+        return (
+            {
+                "id": e.id, 
+                "cardId": e.cardId, 
+                "timestamp": e.timestamp, 
+                "amount": e.amount
+            }
+        )
+    })
+}
+
+async function findPaymentsDetails(cardId: number) {
+    const paymentDetails = await findByCardId(cardId);
+
+    return paymentDetails.map(e => {
+        return (
+            {
+                "id": e.id, 
+                "cardId": e.cardId, 
+                "businessId": e.businessId, 
+                "businessName": e.businessName, 
+                "timestamp": e.timestamp, 
+                "amount": e.amount
+            }
+        )
+    })
 }
