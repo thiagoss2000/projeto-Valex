@@ -1,31 +1,33 @@
 import { faker } from '@faker-js/faker';
 import Cryptr from "cryptr";
-import { findById } from "../repositories/employeeRepository.js";
+import { findById as findEmployee} from "../repositories/employeeRepository.js";
 import { findByApiKey } from "../repositories/companyRepository.js";
-import { findByTypeAndEmployeeId, insert, TransactionTypes } from "../repositories/cardRepository.js";
+import * as cardRepository from "../repositories/cardRepository.js";
 import { cardUserName, dateExpiration } from '../utils/cardsUtil.js';
+
 
 const typeCard = ['groceries', 'restaurant', 'transport', 'education', 'health'];
 
-export async function creatCardService(cardType: TransactionTypes, userId: number, apikey: string) {
+export async function creatCardService(cardType: cardRepository.TransactionTypes, userId: number, apikey: string) {
     
     if (!typeCard.includes(cardType)) throw {status: 406, message: "type not available"};
     
-    const userdata = await findById(userId);
+    const userdata = await findEmployee(userId);
     const companyData = await findByApiKey(apikey.toString());
 
     if (!userdata || !companyData) throw {status: 400, message: "invalid data"};    
     if (userdata.companyId != companyData.id) throw {status: 404, message: "unassociated employee"};
     
-    const cardsData = await findByTypeAndEmployeeId(cardType, userId);
+    const cardsData = await cardRepository.findByTypeAndEmployeeId(cardType, userId);
     
     if (cardsData) throw {status: 409, message: "card existed"};
 
-    const cryptr = new Cryptr(apikey.toString());
+    const numberCard = faker.random.numeric(16);
+    const cryptr = new Cryptr(numberCard);
 
     const card = {
         employeeId: userdata.id,
-        number: faker.random.numeric(16),
+        number: numberCard,
         cardholderName: cardUserName(userdata.fullName),
         securityCode: cryptr.encrypt(faker.random.numeric(3)),
         expirationDate: dateExpiration(5),
@@ -36,5 +38,32 @@ export async function creatCardService(cardType: TransactionTypes, userId: numbe
         type: cardType,
     };
 
-    await insert(card);
+    await cardRepository.insert(card);
+}
+
+export async function activeCardService(cardNumber: string, cvc: string, password: string, cardDetails: any) {
+    const cryptr = new Cryptr(cardNumber);
+    const newData = { password: cryptr.encrypt(password) }    
+    await cardRepository.update(cardDetails.id, newData);
+}
+
+export async function blockCardService(cardDetails: cardRepository.Card, password: string, state: boolean) {
+
+    const cryptr = new Cryptr(cardDetails.number);
+
+    if (cryptr.decrypt(cardDetails.password) != password) throw {status: 401, message: "invalid data"};
+    
+    if(cardDetails.isBlocked == state) throw {status: 405, message: state? "card is blocked" : "card not blocked" };
+
+    const newData = { isBlocked: state }    
+    await cardRepository.update(cardDetails.id, newData);
+}
+
+export async function viewCardService(employeeId: number, password: string){
+
+    console.log(employeeId)
+    const cards = await cardRepository.find(employeeId, password);
+    if (cards.length == 0) throw {status: 404, message: "data not found"};
+
+    return cards;
 }
