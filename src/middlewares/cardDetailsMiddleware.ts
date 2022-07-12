@@ -12,7 +12,7 @@ export async function cardDetails(req: Request, res: Response, next: NextFunctio
 
     if (!password) throw {status: 406, message: "password required"};
     if (!cardDetails || cvc != cryptr.decrypt(cardDetails.securityCode)) throw {status: 401, message: "invalid information"};
-    if (cardDetails.expirationDate < expirationDate) throw {status: 401, message: "expired card"};
+    if (cardDetails.expirationDate != expirationDate) throw {status: 401, message: "expired card"};
 
     res.locals = {
         cardDetails
