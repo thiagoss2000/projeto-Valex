@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { activeCard, creatCard, payment, rechargeCard, viewCard, viewMoviment } from "../controllers/cardsController.js";
+import { activeCard, creatCard, viewCard } from "../controllers/cardsController.js";
+import { payment, rechargeCard, viewMoviment } from "../controllers/transasctionsController.js";
 import { cardDetails } from "../middlewares/cardDetailsMiddleware.js";
 
 const cardsRouter = Router();

@@ -1,5 +1,5 @@
-import express, { json } from "express";
 import "express-async-errors";
+import express, { json } from "express";
 import dotenv from "dotenv";
 import router from "./routes/router.js";
 import errorHandler from "./middlewares/errorHandlerMiddleware.js"

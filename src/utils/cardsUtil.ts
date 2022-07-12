@@ -9,7 +9,7 @@ export function cardUserName(userName: string) {
             usernameCard.push(e[0]);
         }
     })
-    return usernameArr.join(' ');
+    return usernameArr.join(' ').toUpperCase();
 }
 
 export function dateExpiration(validTime: number) {

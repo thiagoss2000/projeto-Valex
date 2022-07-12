@@ -1,8 +1,6 @@
-import Cryptr from "cryptr";
 import { Request, Response } from "express";
 import { Card, TransactionTypes } from "../repositories/cardRepository.js";
 import { activeCardService, blockCardService, creatCardService, viewCardService } from "../services/cardsService.js";
-import { paymentService, rechargecardService, viewTransactionsServices } from "../services/transactionServices.js"
 
 export async function creatCard(req: Request, res: Response) {
     const { apikey } = req.headers;
@@ -28,38 +26,11 @@ export async function viewCard(req: Request, res: Response) {
     const employeeId = req.params.id
     const { password } = req.headers;
 
-    const cards = viewCardService(parseInt(employeeId), password.toString());
-}
+    if (!password) throw {status: 422, message: "invalid data"};
 
-export async function viewMoviment(req: Request, res: Response) {
-    const cardId = req.params.id;
+    const cards = await viewCardService(parseInt(employeeId), password.toString());
 
-    const transactionsData = await viewTransactionsServices(parseInt(cardId));
-
-    res.send(transactionsData);
-}
-
-export async function rechargeCard(req: Request, res: Response) {
-    const { apikey } = req.headers;
-    const { cardId, credit } : {cardId: number, credit: number} = req.body;
-
-    await rechargecardService(apikey.toString(), cardId, credit);
-
-    res.sendStatus(200);
-}
-
-export async function payment(req: Request, res: Response) {
-    const { password, businessId, paymentAmount } : 
-    {password: string, businessId: number, paymentAmount: number} = req.body;
-
-    const cardDetails : Card = res.locals.cardDetails;
-    const cryptr = new Cryptr(cardDetails.number);
-
-    if (cryptr.decrypt(cardDetails.password) != password ) throw {status: 401, message: "invalid data"};
- 
-    await paymentService(cardDetails.id, cardDetails.type, businessId, paymentAmount)
-
-    res.sendStatus(200);
+    res.send(cards);
 }
 
 export async function blockCard(req: Request, res: Response) {

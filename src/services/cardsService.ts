@@ -43,7 +43,6 @@ export async function creatCardService(cardType: cardRepository.TransactionTypes
 
 export async function activeCardService(cardNumber: string, cvc: string, password: string, cardDetails: any) {
     const cryptr = new Cryptr(cardNumber);
-    console.log(cryptr.decrypt(cardDetails.securityCode))
     const newData = { password: cryptr.encrypt(password) }    
     await cardRepository.update(cardDetails.id, newData);
 }
@@ -62,6 +61,7 @@ export async function blockCardService(cardDetails: cardRepository.Card, passwor
 
 export async function viewCardService(employeeId: number, password: string){
 
+    console.log(employeeId)
     const cards = await cardRepository.find(employeeId, password);
     if (cards.length == 0) throw {status: 404, message: "data not found"};
 
