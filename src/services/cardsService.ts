@@ -50,7 +50,7 @@ export async function activeCardService(cardNumber: string, cvc: string, passwor
 export async function blockCardService(cardDetails: cardRepository.Card, password: string, state: boolean) {
 
     const cryptr = new Cryptr(cardDetails.number);
-
+    console.log(password)
     if (cryptr.decrypt(cardDetails.password) != password) throw {status: 401, message: "invalid data"};
     
     if(cardDetails.isBlocked == state) throw {status: 405, message: state? "card is blocked" : "card not blocked" };

@@ -35,8 +35,9 @@ export async function viewCard(req: Request, res: Response) {
 
 export async function blockCard(req: Request, res: Response) {
     const { password } : {password: string} = req.body;
+    console.log(password)
     const cardDetails : Card = res.locals.cardDetails;
-  
+    
     await blockCardService(cardDetails, password, true);
 
     res.sendStatus(200);
@@ -44,8 +45,9 @@ export async function blockCard(req: Request, res: Response) {
 
 export async function unlockCard(req: Request, res: Response) {
     const { password } : {password: string} = req.body;
+    console.log(password)
     const cardDetails : Card = res.locals.cardDetails;
-
+    
     await blockCardService(cardDetails, password, false);
 
     res.sendStatus(200);
