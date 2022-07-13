@@ -8,7 +8,7 @@ export async function creatCard(req: Request, res: Response) {
 
     const cvc = await creatCardService(cardType, employeeId, apikey.toString());
    
-    res.status(201).send(cvc);
+    res.status(201).send({cvc});
 }
 
 export async function activeCard(req: Request, res: Response) {
