@@ -24,12 +24,12 @@ export async function creatCardService(cardType: cardRepository.TransactionTypes
 
     const numberCard = faker.random.numeric(16);
     const cryptr = new Cryptr(numberCard);
-
+    const cvc = faker.random.numeric(3);
     const card = {
         employeeId: userdata.id,
         number: numberCard,
         cardholderName: cardUserName(userdata.fullName),
-        securityCode: cryptr.encrypt(faker.random.numeric(3)),
+        securityCode: cryptr.encrypt(cvc),
         expirationDate: dateExpiration(5),
         password: null, 
         isVirtual: false,   
@@ -39,9 +39,14 @@ export async function creatCardService(cardType: cardRepository.TransactionTypes
     };
 
     await cardRepository.insert(card);
+    
+    return cvc;
 }
 
-export async function activeCardService(cardNumber: string, cvc: string, password: string, cardDetails: any) {
+export async function activeCardService(cardNumber: string, password: string, cardDetails: any) {
+
+    if (cardDetails.password) throw {status: 401, message: "card is active"}
+
     const cryptr = new Cryptr(cardNumber);
     const newData = { password: cryptr.encrypt(password) }    
     await cardRepository.update(cardDetails.id, newData);

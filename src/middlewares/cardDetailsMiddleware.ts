@@ -8,7 +8,7 @@ export async function cardDetails(req: Request, res: Response, next: NextFunctio
 
     const cryptr = new Cryptr(cardNumber);
 
-    const cardDetails = await findByCardDetails(cardNumber, cardholderName, expirationDate);
+    const cardDetails = await findByCardDetails(cardNumber, cardholderName.toUpperCase(), expirationDate);
 
     if (!password) throw {status: 406, message: "password required"};
     if (!cardDetails || cvc != cryptr.decrypt(cardDetails.securityCode)) throw {status: 401, message: "invalid information"};

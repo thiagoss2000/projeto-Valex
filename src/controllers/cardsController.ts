@@ -6,18 +6,18 @@ export async function creatCard(req: Request, res: Response) {
     const { apikey } = req.headers;
     const { employeeId, cardType } : {employeeId: number, cardType: TransactionTypes} = req.body;
 
-    await creatCardService(cardType, employeeId, apikey.toString());
+    const cvc = await creatCardService(cardType, employeeId, apikey.toString());
    
-    res.sendStatus(201);
+    res.status(201).send(cvc);
 }
 
 export async function activeCard(req: Request, res: Response) {
-    const { cardNumber, cvc, password } : 
-    {cardNumber: string, cvc: string, password: string} = req.body;
+    const { cardNumber, password } : 
+    {cardNumber: string, password: string} = req.body;
     
     const cardDetails : Card = res.locals.cardDetails;
-
-    await activeCardService(cardNumber, cvc, password, cardDetails);
+    
+    await activeCardService(cardNumber, password, cardDetails);
     
     res.sendStatus(200);
 }
