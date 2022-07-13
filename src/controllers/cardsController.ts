@@ -23,12 +23,12 @@ export async function activeCard(req: Request, res: Response) {
 }
 
 export async function viewCard(req: Request, res: Response) {
-    const employeeId = req.params.id
+    const cardId = req.params.id
     const { password } = req.headers;
 
     if (!password) throw {status: 422, message: "invalid data"};
 
-    const cards = await viewCardService(parseInt(employeeId), password.toString());
+    const cards = await viewCardService(parseInt(cardId), password.toString());
 
     res.send(cards);
 }

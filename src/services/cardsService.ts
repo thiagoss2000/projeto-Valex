@@ -55,7 +55,7 @@ export async function activeCardService(cardNumber: string, password: string, ca
 export async function blockCardService(cardDetails: cardRepository.Card, password: string, state: boolean) {
 
     const cryptr = new Cryptr(cardDetails.number);
-    console.log(password)
+    
     if (cryptr.decrypt(cardDetails.password) != password) throw {status: 401, message: "invalid data"};
     
     if(cardDetails.isBlocked == state) throw {status: 405, message: state? "card is blocked" : "card not blocked" };
@@ -64,11 +64,13 @@ export async function blockCardService(cardDetails: cardRepository.Card, passwor
     await cardRepository.update(cardDetails.id, newData);
 }
 
-export async function viewCardService(employeeId: number, password: string){
-    const cards = await cardRepository.findById(employeeId);
+export async function viewCardService(cardId: number, password: string){
+    const cards = await cardRepository.findById(cardId);
+
+    const cryptr = new Cryptr(cards.number);
 
     if (!cards) throw {status: 404, message: "data not found"};
-    if (cards.password != password) throw {status: 401, message: "invalid data"}; 
+    if (cryptr.decrypt(cards.password) != password) throw {status: 401, message: "invalid data"}; 
 
     return cards;
 }
