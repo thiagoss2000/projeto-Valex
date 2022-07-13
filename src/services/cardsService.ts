@@ -67,6 +67,7 @@ export async function blockCardService(cardDetails: cardRepository.Card, passwor
 export async function viewCardService(cardId: number, password: string){
     const cards = await cardRepository.findById(cardId);
 
+    if (!cards.password) throw {status: 401, message: "card not activated"};
     const cryptr = new Cryptr(cards.number);
 
     if (!cards) throw {status: 404, message: "data not found"};
