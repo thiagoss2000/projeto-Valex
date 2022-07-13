@@ -6,37 +6,38 @@ export async function creatCard(req: Request, res: Response) {
     const { apikey } = req.headers;
     const { employeeId, cardType } : {employeeId: number, cardType: TransactionTypes} = req.body;
 
-    await creatCardService(cardType, employeeId, apikey.toString());
+    const cvc = await creatCardService(cardType, employeeId, apikey.toString());
    
-    res.sendStatus(201);
+    res.status(201).send(cvc);
 }
 
 export async function activeCard(req: Request, res: Response) {
-    const { cardNumber, cvc, password } : 
-    {cardNumber: string, cvc: string, password: string} = req.body;
+    const { cardNumber, password } : 
+    {cardNumber: string, password: string} = req.body;
     
     const cardDetails : Card = res.locals.cardDetails;
-
-    await activeCardService(cardNumber, cvc, password, cardDetails);
+    
+    await activeCardService(cardNumber, password, cardDetails);
     
     res.sendStatus(200);
 }
 
 export async function viewCard(req: Request, res: Response) {
-    const employeeId = req.params.id
+    const cardId = req.params.id
     const { password } = req.headers;
 
     if (!password) throw {status: 422, message: "invalid data"};
 
-    const cards = await viewCardService(parseInt(employeeId), password.toString());
+    const cards = await viewCardService(parseInt(cardId), password.toString());
 
     res.send(cards);
 }
 
 export async function blockCard(req: Request, res: Response) {
     const { password } : {password: string} = req.body;
+    console.log(password)
     const cardDetails : Card = res.locals.cardDetails;
-  
+    
     await blockCardService(cardDetails, password, true);
 
     res.sendStatus(200);
@@ -44,8 +45,9 @@ export async function blockCard(req: Request, res: Response) {
 
 export async function unlockCard(req: Request, res: Response) {
     const { password } : {password: string} = req.body;
+    console.log(password)
     const cardDetails : Card = res.locals.cardDetails;
-
+    
     await blockCardService(cardDetails, password, false);
 
     res.sendStatus(200);
